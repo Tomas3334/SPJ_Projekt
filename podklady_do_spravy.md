@@ -45,19 +45,48 @@ porovnáva dokument priamo s názvami hesiel GND (podľa silp_nlp a TartuNLP [1]
 **Experimentálny protokol.** Pri ladení tvorila index trénovacia množina (32 043 záznamov)
 a dopyty vývojová množina (5 354 záznamov). Pri finálnom vyhodnotení tvorili index trénovacia
 a vývojová množina a dopyty oficiálna testovacia množina s referenčnými heslami (4 910 záznamov,
-verzia repozitára 098c3575). Metriky P@k, R@k a F1@k (k = 5, …, 50) sa počítali rovnako ako
+verzia repozitára 098c3575). Experimenty s modelom e5 bežali na notebooku s GPU NVIDIA RTX 3060
+Laptop (Windows 11, Python 3.12). Finálny beh na testovacej množine vrátane kódovania textov
+trval necelé 4 minúty. Metriky P@k, R@k a F1@k (k = 5, …, 50) sa počítali rovnako ako
 v oficiálnom hodnotiacom skripte. Zhodu sme overili spustením oficiálneho skriptu.
 
 **Prvé výsledky (tib-core, test):**
 
 | variant | avgR | P@5 | R@5 | F1@5 | R@10 | R@20 | R@50 |
 |---|---|---|---|---|---|---|---|
-| kNN TF-IDF (k=300, p=3) | 0.6270 | 0.1957 | 0.4808 | 0.2749 | 0.5532 | 0.6208 | 0.6965 |
-| kNN multilingual-e5-base | *doplniť* | | | | | | |
-| zero-shot e5 (dokument → heslo) | *doplniť* | | | | | | |
+| **kNN multilingual-e5-base (k=200, p=64) – baseline** | **0.6371** | 0.1969 | 0.4837 | 0.2767 | 0.5642 | 0.6307 | 0.7041 |
+| kNN TF-IDF (k=300, p=3) – kontrolný variant | 0.6270 | 0.1957 | 0.4808 | 0.2749 | 0.5532 | 0.6208 | 0.6965 |
+| zero-shot e5 (dokument → heslo) | 0.2448 | 0.0535 | 0.1293 | 0.0751 | 0.1714 | 0.2281 | 0.3196 |
 
-Už kontrolný TF-IDF variant dosiahol priemerný recall 0,627. Na rebríčku SemEval-2025 by
-sa umiestnil za víťazným RUC Team (0,66) a pred systémom Annif (0,59).
+Na vývojovej množine: kNN e5 avgR 0,6085, kNN TF-IDF 0,5958.
+
+Recall@5 podľa jazyka dokumentu (test):
+
+| variant | nemčina | angličtina |
+|---|---|---|
+| kNN e5 | 0.4943 | 0.4255 |
+| kNN TF-IDF | 0.4699 | 0.4637 |
+| zero-shot e5 | 0.1759 | 0.1003 |
+
+**Interpretácia.**
+
+- **Pozícia voči súťaži.** Baseline dosiahol na oficiálnej testovacej množine priemerný recall
+  0,637. Na rebríčku SemEval-2025 (tib-core) by sa umiestnil za víťazným RUC Team (0,66)
+  a pred druhým systémom Annif (0,59). Baseline organizátorov s GPT-4o skončil pod všetkými
+  účastníkmi.
+- **Rozhoduje princíp prenosu hesiel, nie typ reprezentácie.** Sémantický model priniesol oproti
+  TF-IDF len malé zlepšenie (+0,010 avgR na teste, +0,013 na dev). Väčšinu výkonu teda dáva
+  samotný princíp prenosu hesiel z podobných dokumentov.
+- **Jazyk.** Model e5 bol lepší na nemeckých záznamoch, TF-IDF na anglických. To naznačuje
+  možný prínos kombinácie oboch prístupov.
+- **Zero-shot variant je výrazne slabší** (0,245). Na anglických záznamoch dosiahol takmer
+  polovičný R@5 oproti nemeckým (0,100 oproti 0,176). Potvrdzuje to problém jazykového nesúladu
+  medzi anglickými textami a nemeckými heslami GND, ktorý kNN prístup obchádza.
+- **Typy záznamov.** Najhoršie výsledky boli pri záverečných prácach (Thesis), pri ktorých
+  sú témy špecifickejšie.
+- **Nadväznosť na 2. etapu.** R@50 dosahuje 0,70, takže zoznam 50 kandidátov obsahuje približne
+  70 % správnych hesiel. Opätovné zoradenie pomocou LLM teda môže zlepšiť najmä metriky pri
+  malom k (R@5 = 0,48). Na heslá mimo zoznamu kandidátov však nedosiahne.
 
 **Poznámky k dátam (pre člena 2):**
 - V priemere má záznam iba ~2,4 referenčného hesla. P@k je preto zhora obmedzené.
@@ -75,7 +104,7 @@ sa umiestnil za víťazným RUC Team (0,66) a pred systémom Annif (0,59).
 | | |
 |---|---|
 | **Nástroj / model** | Claude (Anthropic), model Claude Opus 5.5, aplikácia Claude s prístupom k súborom projektu |
-| **Účel** | (1) preštudovanie zadania, webu súťaže LLMs4Subjects a oficiálneho repozitára; (2) výber a zdôvodnenie baseline; (3) návrh a implementácia kódu baseline (`run_baseline.py`, `src/*.py`, `download_data.py`); (4) spustenie TF-IDF variantu a overenie zhody metrík s oficiálnym skriptom; (5) návrh README a tohto textu |
+| **Účel** | (1) preštudovanie zadania, webu súťaže LLMs4Subjects a oficiálneho repozitára; (2) výber a zdôvodnenie baseline; (3) návrh a implementácia kódu baseline (`run_baseline.py`, `src/*.py`, `download_data.py`); (4) spustenie TF-IDF variantu a overenie zhody metrík s oficiálnym skriptom; (5) návrh rozsahu ladenia parametrov a interpretácia výsledkov; (6) návrh README a tohto textu. Variant s modelom e5 spustil člen tímu na vlastnom počítači podľa README. |
 | **Prompty** | *(sem vložiť doslovne vlastné správy z konverzácie, napr. „Potrebujem aby si mi pomohol vypracovať moju časť projektu…“, „pridal som do priečinka … ešte jeden dokument…“, „Áno, napíš mi kód a baseline priamo do priečinka…“)* |
 | **Relevantné výstupy** | zdrojový kód v priečinku `spj_baseline`, README, výsledky TF-IDF variantu (tabuľka vyššie), návrh textu tejto časti správy |
 | **Ľudská kontrola** | *(doplniť: čo ste overili sami – spustenie na vlastnom PC, kontrola čísel, úpravy textu)* |
