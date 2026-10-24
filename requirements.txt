@@ -1,0 +1,8 @@
+# PyTorch s podporou CUDA inštalujte ZVLÁŠŤ podľa README (krok 2), nie odtiaľto.
+sentence-transformers>=3.0
+numpy>=1.26
+scipy>=1.11
+scikit-learn>=1.4
+pandas>=2.1
+openpyxl>=3.1
+tqdm>=4.66

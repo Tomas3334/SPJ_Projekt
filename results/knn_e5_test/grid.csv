@@ -1,0 +1,2 @@
+k_neighbors,power,avg_recall,precision@5,recall@5,f1@5,precision@10,recall@10,f1@10,precision@15,recall@15,f1@15,precision@20,recall@20,f1@20,precision@25,recall@25,f1@25,precision@30,recall@30,f1@30,precision@35,recall@35,f1@35,precision@40,recall@40,f1@40,precision@45,recall@45,f1@45,precision@50,recall@50,f1@50
+200,64.0,0.6371,0.1969,0.4837,0.2767,0.1177,0.5642,0.1932,0.0852,0.606,0.1485,0.0676,0.6307,0.1215,0.0562,0.6533,0.1031,0.048,0.6677,0.0892,0.0421,0.6781,0.079,0.0374,0.6874,0.0708,0.0338,0.6956,0.0643,0.0308,0.7041,0.059
