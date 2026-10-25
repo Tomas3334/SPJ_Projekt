@@ -187,10 +187,9 @@ spj_baseline/
 ├── requirements.txt
 ├── download_data.py      – stiahnutie dát (git sparse checkout, pevný commit)
 ├── run_baseline.py       – hlavný skript: dáta → embeddingy → kNN → predikcie → metriky
-├── src/
-│   ├── data.py           – načítanie JSON-LD záznamov a slovníka GND
-│   ├── encoders.py       – multilingual-e5 (sentence-transformers) a TF-IDF
-│   ├── retrieval.py      – vyhľadávanie susedov a kNN skórovanie hesiel
-│   └── evaluation.py     – P/R/F1@k zhodné s oficiálnym skriptom
-└── podklady_do_spravy.md – text o baseline do správy + záznam do prílohy o AI
+└── src/
+    ├── data.py           – načítanie JSON-LD záznamov a slovníka GND
+    ├── encoders.py       – multilingual-e5 (sentence-transformers) a TF-IDF
+    ├── retrieval.py      – vyhľadávanie susedov a kNN skórovanie hesiel
+    └── evaluation.py     – P/R/F1@k zhodné s oficiálnym skriptom
 ```
